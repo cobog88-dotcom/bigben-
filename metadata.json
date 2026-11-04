@@ -1,0 +1,6 @@
+{
+  "name": "Big Ben Global Limited — Beetroot Tea & Commerce",
+  "description": "Production-minded responsive e-commerce platform and brand-aligned dashboard for Big Ben Global Limited beetroot tea, featuring customer and admin workspaces, grounded AI assistant, and UX wireframe specifications.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

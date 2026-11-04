@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-beetroot-900: #4c0519;
+    --color-beetroot-800: #881337;
+    --color-beetroot-700: #9f1239;
+    --color-beetroot-600: #be123c;
+    --color-beetroot-100: #ffe4e6;
+    --color-beetroot-50: #fff1f2;
+
+    --color-leaf-900: #14532d;
+    --color-leaf-800: #166534;
+    --color-leaf-700: #15803d;
+    --color-leaf-100: #dcfce7;
+    --color-leaf-50: #f0fdf4;
+
+    --color-cream-50: #fdfbf7;
+    --color-cream-100: #f7f3ea;
+    --color-cream-200: #efe8dc;
+    --color-cream-300: #e2d7c5;
+
+    --color-charcoal-900: #0f172a;
+    --color-charcoal-800: #1e293b;
+    --color-charcoal-700: #334155;
+    --color-charcoal-500: #64748b;
+    --color-charcoal-300: #cbd5e1;
+  }
+
+  body {
+    background-color: #FAF7F2;
+    color: #1E293B;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+}
+
+/* Blueprint / Wireframe Mode Grid & Styling */
+.wireframe-grid {
+  background-image: 
+    linear-gradient(to right, rgba(148, 163, 184, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.15) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.wireframe-box {
+  border: 1.5px dashed #94a3b8;
+  background-color: rgba(248, 250, 252, 0.85);
+}
+
+.wireframe-ruler {
+  background: repeating-linear-gradient(
+    90deg,
+    #cbd5e1,
+    #cbd5e1 1px,
+    transparent 1px,
+    transparent 8px
+  );
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F4EFEA;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
