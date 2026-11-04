@@ -15,7 +15,7 @@ import { User } from '../types';
 
 interface NavbarProps {
   currentUser: User | null;
-  onSwitchUserRole: (role: 'customer' | 'admin' | 'guest') => void;
+  onSwitchUserRole?: (role: 'customer' | 'admin' | 'guest') => void;
   cartCount: number;
   onOpenCart: () => void;
   activeView: 'home' | 'shop' | 'brew-guide' | 'about' | 'contact' | 'customer-dashboard' | 'admin-dashboard';
@@ -26,7 +26,6 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentUser,
-  onSwitchUserRole,
   cartCount,
   onOpenCart,
   activeView,
@@ -161,19 +160,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                   title="Account menu"
                   aria-expanded={userDropdownOpen}
                 >
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-bold shadow-xs ${
-                    currentUser.role === 'admin' ? 'bg-amber-700' : 'bg-emerald-700'
-                  }`}>
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-bold shadow-xs bg-[#881337]">
                     {currentUser.name.charAt(0)}
                   </div>
                   <div className="hidden sm:block text-left">
                     <div className="text-[11px] font-semibold text-slate-900 leading-none truncate max-w-[100px]">
                       {currentUser.name.split(' ')[0]}
                     </div>
-                    <div className={`text-[9px] uppercase tracking-wider font-semibold ${
-                      currentUser.role === 'admin' ? 'text-amber-700' : 'text-emerald-700'
-                    }`}>
-                      {currentUser.role}
+                    <div className="text-[9px] uppercase tracking-wider font-semibold text-slate-500">
+                      Account
                     </div>
                   </div>
                   <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
@@ -181,21 +176,12 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 {userDropdownOpen && (
                   <div 
-                    className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2"
+                    className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2"
                     onMouseLeave={() => setUserDropdownOpen(false)}
                   >
                     <div className="px-4 py-2 border-b border-slate-100 bg-slate-50/70">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Signed in as</span>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                          currentUser.role === 'admin' 
-                            ? 'bg-amber-100 text-amber-900 border border-amber-300' 
-                            : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
-                        }`}>
-                          {currentUser.role}
-                        </span>
-                      </div>
-                      <p className="text-sm font-bold text-slate-900 mt-1 truncate">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Signed in as</span>
+                      <p className="text-sm font-bold text-slate-900 mt-0.5 truncate">
                         {currentUser.name}
                       </p>
                       <p className="text-[11px] text-slate-500 font-mono truncate">{currentUser.email}</p>
@@ -208,56 +194,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                           setUserDropdownOpen(false);
                           onNavigate('customer-dashboard');
                         }}
-                        className="w-full text-left px-4 py-2 text-xs flex items-center gap-2 hover:bg-slate-50 text-slate-800"
+                        className="w-full text-left px-4 py-2 text-xs flex items-center gap-2 hover:bg-slate-50 text-slate-800 cursor-pointer"
                       >
                         <UserIcon className="w-4 h-4 text-emerald-700" />
                         <div>
                           <div className="font-semibold">My Account & Orders</div>
-                          <div className="text-[10px] text-slate-500">Order tracking, history, addresses</div>
+                          <div className="text-[10px] text-slate-500">Track orders, history & addresses</div>
                         </div>
-                      </button>
-
-                      {currentUser.role === 'admin' && (
-                        <button
-                          onClick={() => {
-                            setUserDropdownOpen(false);
-                            onNavigate('admin-dashboard');
-                          }}
-                          className="w-full text-left px-4 py-2 text-xs flex items-center gap-2 hover:bg-slate-50 text-slate-800"
-                        >
-                          <ShieldCheck className="w-4 h-4 text-amber-700" />
-                          <div>
-                            <div className="font-semibold">Admin Workspace</div>
-                            <div className="text-[10px] text-slate-500">Inventory, orders, metrics & AI knowledge</div>
-                          </div>
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Switch role quick toggle */}
-                    <div className="border-t border-slate-100 py-1">
-                      <div className="px-4 py-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                        Switch Account Demo
-                      </div>
-                      <button
-                        onClick={() => {
-                          onSwitchUserRole('customer');
-                          setUserDropdownOpen(false);
-                        }}
-                        className="w-full text-left px-4 py-1.5 text-xs flex items-center justify-between hover:bg-slate-50 text-slate-700"
-                      >
-                        <span className="text-xs">Sarah Jenkins (Customer)</span>
-                        {currentUser.role === 'customer' && <Check className="w-3.5 h-3.5 text-emerald-600" />}
-                      </button>
-                      <button
-                        onClick={() => {
-                          onSwitchUserRole('admin');
-                          setUserDropdownOpen(false);
-                        }}
-                        className="w-full text-left px-4 py-1.5 text-xs flex items-center justify-between hover:bg-slate-50 text-slate-700"
-                      >
-                        <span className="text-xs">Arthur Pendelton (Admin)</span>
-                        {currentUser.role === 'admin' && <Check className="w-3.5 h-3.5 text-amber-600" />}
                       </button>
                     </div>
 
@@ -395,19 +338,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <UserIcon className="w-4 h-4 text-emerald-700" />
                     <span>My Customer Dashboard</span>
                   </button>
-
-                  {currentUser.role === 'admin' && (
-                    <button
-                      onClick={() => {
-                        onNavigate('admin-dashboard');
-                        setMobileMenuOpen(false);
-                      }}
-                      className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-lg flex items-center gap-2"
-                    >
-                      <ShieldCheck className="w-4 h-4 text-amber-700" />
-                      <span>Admin Operations Workspace</span>
-                    </button>
-                  )}
 
                   <button
                     onClick={() => {

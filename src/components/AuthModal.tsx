@@ -287,33 +287,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {/* SIGN IN FORM */}
           {mode === 'signin' && (
             <div>
-              {/* 1-Click Demo Accounts */}
-              <div className="mb-5 p-3.5 bg-amber-50/70 border border-amber-200/80 rounded-xl">
+              {/* 1-Click Customer Access */}
+              <div className="mb-5 p-3.5 bg-rose-50/70 border border-rose-200/80 rounded-xl">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                    Quick 1-Click Sign In
+                  <span className="text-[11px] font-bold text-rose-950 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-rose-700" />
+                    Quick Customer Preview
                   </span>
-                  <span className="text-[10px] text-amber-700 font-medium">Instant Test Access</span>
+                  <span className="text-[10px] text-rose-700 font-medium">1-Click Sign In</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleQuickSignIn('customer')}
-                    className="px-3 py-2 bg-white hover:bg-emerald-50 text-emerald-900 border border-emerald-300 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
-                  >
-                    <UserIcon className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Customer (Sarah)</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickSignIn('admin')}
-                    className="px-3 py-2 bg-white hover:bg-amber-100 text-amber-950 border border-amber-300 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
-                  >
-                    <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
-                    <span>Admin (Arthur)</span>
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => handleQuickSignIn('customer')}
+                  className="w-full px-3 py-2 bg-white hover:bg-rose-50 text-slate-800 hover:text-rose-900 border border-rose-200 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors shadow-xs cursor-pointer"
+                >
+                  <UserIcon className="w-3.5 h-3.5 text-rose-800" />
+                  <span>Sign In as Customer (Sarah Jenkins)</span>
+                </button>
               </div>
 
               <div className="relative flex py-2 items-center mb-4">

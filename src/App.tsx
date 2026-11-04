@@ -628,6 +628,7 @@ export default function App() {
                 onNavigateShop={() => setActiveView('shop')}
                 onUpdateAddress={handleUpdateCustomerAddresses}
                 onOpenAuth={handleOpenAuth}
+                onSignOut={handleSignOut}
               />
             </main>
           )}

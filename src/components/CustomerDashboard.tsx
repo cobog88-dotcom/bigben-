@@ -19,7 +19,8 @@ import {
   LogIn,
   UserPlus,
   Search,
-  User as UserIcon
+  User as UserIcon,
+  LogOut
 } from 'lucide-react';
 import { Order, User, Address } from '../types';
 
@@ -29,6 +30,7 @@ interface CustomerDashboardProps {
   onNavigateShop: () => void;
   onUpdateAddress: (addresses: Address[]) => void;
   onOpenAuth?: (mode?: 'signin' | 'signup') => void;
+  onSignOut?: () => void;
 }
 
 export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
@@ -36,7 +38,8 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
   orders,
   onNavigateShop,
   onUpdateAddress,
-  onOpenAuth
+  onOpenAuth,
+  onSignOut
 }) => {
   const [activeTab, setActiveTab] = useState<'orders' | 'addresses' | 'security'>('orders');
   const [selectedReceiptOrder, setSelectedReceiptOrder] = useState<Order | null>(null);
@@ -203,11 +206,21 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
           <div className="flex items-center gap-3">
             <button
               onClick={onNavigateShop}
-              className="bg-[#881337] hover:bg-[#9F1239] text-white px-5 py-2.5 rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-2"
+              className="bg-[#881337] hover:bg-[#9F1239] text-white px-5 py-2.5 rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-2 cursor-pointer"
             >
               <ShoppingBag className="w-4 h-4" />
               <span>Browse Tea Catalogue</span>
             </button>
+            {onSignOut && (
+              <button
+                onClick={onSignOut}
+                className="bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-300 text-rose-800 px-4 py-2.5 rounded-xl text-xs font-semibold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                title="Sign out of your account"
+              >
+                <LogOut className="w-3.5 h-3.5 text-rose-600" />
+                <span>Sign Out</span>
+              </button>
+            )}
           </div>
         </div>
 

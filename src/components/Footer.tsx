@@ -64,27 +64,29 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </ul>
           </div>
 
-          {/* Workspaces & Accounts */}
+          {/* Customer Services & Support */}
           <div className="space-y-3">
             <h4 className="font-bold text-white text-xs uppercase tracking-wider font-mono">
-              Portals & Roles
+              Customer Services
             </h4>
             <ul className="space-y-2 text-slate-400">
               <li>
-                <button onClick={() => onNavigate('customer-dashboard')} className="hover:text-white transition-colors">
+                <button onClick={() => onNavigate('customer-dashboard')} className="hover:text-white transition-colors cursor-pointer">
                   Customer Account & Orders
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('admin-dashboard')} className="hover:text-white transition-colors">
-                  Admin Workspace & Operations
+                <button onClick={() => onNavigate('brew-guide')} className="hover:text-white transition-colors cursor-pointer">
+                  How to Brew & Steeping Guide
                 </button>
               </li>
               <li>
-                <span className="text-slate-500">Live Carrier Dispatch (Royal Mail / DPD)</span>
+                <button onClick={() => onNavigate('contact')} className="hover:text-white transition-colors cursor-pointer">
+                  Customer Support & Inquiries
+                </button>
               </li>
               <li>
-                <span className="text-slate-500">Grounded Gemini AI Support Assistant</span>
+                <span className="text-slate-400">Tracked UK Courier Delivery</span>
               </li>
             </ul>
           </div>
