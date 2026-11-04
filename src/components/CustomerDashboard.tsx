@@ -15,22 +15,28 @@ import {
   ChevronRight,
   Printer,
   X,
-  AlertCircle
+  AlertCircle,
+  LogIn,
+  UserPlus,
+  Search,
+  User as UserIcon
 } from 'lucide-react';
 import { Order, User, Address } from '../types';
 
 interface CustomerDashboardProps {
-  user: User;
+  user: User | null;
   orders: Order[];
   onNavigateShop: () => void;
   onUpdateAddress: (addresses: Address[]) => void;
+  onOpenAuth?: (mode?: 'signin' | 'signup') => void;
 }
 
 export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
   user,
   orders,
   onNavigateShop,
-  onUpdateAddress
+  onUpdateAddress,
+  onOpenAuth
 }) => {
   const [activeTab, setActiveTab] = useState<'orders' | 'addresses' | 'security'>('orders');
   const [selectedReceiptOrder, setSelectedReceiptOrder] = useState<Order | null>(null);
@@ -39,6 +45,92 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
   const [newCity, setNewCity] = useState('');
   const [newPostcode, setNewPostcode] = useState('');
   const [securitySuccess, setSecuritySuccess] = useState('');
+  const [guestLookupRef, setGuestLookupRef] = useState('');
+  const [guestLookupResult, setGuestLookupResult] = useState<Order | null | 'not_found'>(null);
+
+  if (!user) {
+    const handleGuestLookup = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!guestLookupRef.trim()) return;
+      const found = orders.find(o => o.orderRef.toLowerCase().trim() === guestLookupRef.toLowerCase().trim());
+      setGuestLookupResult(found || 'not_found');
+    };
+
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-rose-100 text-rose-900 flex items-center justify-center mb-5 shadow-sm">
+          <UserIcon className="w-8 h-8 text-[#881337]" />
+        </div>
+        <h2 className="font-serif text-3xl font-bold text-slate-900 mb-3">
+          Customer Portal & Orders
+        </h2>
+        <p className="text-slate-600 max-w-md mx-auto text-sm mb-8">
+          Sign in to view your real-time delivery status, access VAT order invoices, manage saved delivery addresses, and quickly reorder your favorite Big Ben blends.
+        </p>
+        
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
+          <button
+            onClick={() => onOpenAuth?.('signin')}
+            className="w-full sm:w-auto px-6 py-3 bg-[#881337] hover:bg-[#9F1239] text-white rounded-xl text-sm font-semibold shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+          >
+            <LogIn className="w-4 h-4" />
+            <span>Sign In to Your Account</span>
+          </button>
+          <button
+            onClick={() => onOpenAuth?.('signup')}
+            className="w-full sm:w-auto px-6 py-3 bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 rounded-xl text-sm font-semibold shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+          >
+            <UserPlus className="w-4 h-4 text-slate-600" />
+            <span>Create New Account</span>
+          </button>
+        </div>
+
+        {/* Guest order lookup */}
+        <div className="max-w-md mx-auto bg-white border border-[#EFE8DC] rounded-2xl p-6 shadow-sm text-left">
+          <h3 className="font-serif text-base font-bold text-slate-900 mb-1 flex items-center gap-2">
+            <Truck className="w-4 h-4 text-rose-800" />
+            Track a Guest Order
+          </h3>
+          <p className="text-xs text-slate-500 mb-3">
+            Placed an order without an account? Enter your 8-digit order reference:
+          </p>
+          <form onSubmit={handleGuestLookup} className="flex gap-2 mb-3">
+            <input
+              type="text"
+              value={guestLookupRef}
+              onChange={e => setGuestLookupRef(e.target.value)}
+              placeholder="e.g. BBG-2026-4819"
+              className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-rose-900"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 cursor-pointer"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span>Track</span>
+            </button>
+          </form>
+
+          {guestLookupResult === 'not_found' && (
+            <p className="text-xs text-rose-700 bg-rose-50 p-2.5 rounded-lg border border-rose-200">
+              No order found matching "{guestLookupRef}". Please verify the reference on your email.
+            </p>
+          )}
+
+          {guestLookupResult && guestLookupResult !== 'not_found' && (
+            <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg text-xs space-y-1">
+              <div className="flex justify-between font-bold text-emerald-900">
+                <span>Ref: {guestLookupResult.orderRef}</span>
+                <span className="uppercase">{guestLookupResult.status}</span>
+              </div>
+              <p className="text-slate-600">Total: £{guestLookupResult.total.toFixed(2)} · {guestLookupResult.items.length} items</p>
+              <p className="text-slate-500">Tracking: {guestLookupResult.trackingNumber || 'Pending dispatch'}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   // Filter orders strictly for this customer
   const customerOrders = orders.filter(

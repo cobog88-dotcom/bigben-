@@ -3,14 +3,13 @@ import {
   ShoppingBag, 
   User as UserIcon, 
   ShieldCheck, 
-  Layers, 
   Menu, 
   X, 
-  Sparkles,
-  ChevronDown,
-  LogOut,
-  Sliders,
-  Check
+  ChevronDown, 
+  LogOut, 
+  LogIn,
+  Check, 
+  UserPlus
 } from 'lucide-react';
 import { User } from '../types';
 
@@ -21,8 +20,8 @@ interface NavbarProps {
   onOpenCart: () => void;
   activeView: 'home' | 'shop' | 'brew-guide' | 'about' | 'contact' | 'customer-dashboard' | 'admin-dashboard';
   onNavigate: (view: 'home' | 'shop' | 'brew-guide' | 'about' | 'contact' | 'customer-dashboard' | 'admin-dashboard') => void;
-  onOpenWireframe?: () => void;
-  isWireframeOpen?: boolean;
+  onOpenAuth: (mode?: 'signin' | 'signup') => void;
+  onSignOut: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -32,7 +31,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCart,
   activeView,
   onNavigate,
-  isWireframeOpen
+  onOpenAuth,
+  onSignOut
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -60,7 +60,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-3 text-left focus:outline-none group"
           >
             <div className="w-11 h-11 rounded-lg bg-[#881337] text-white flex items-center justify-center shadow-md group-hover:bg-[#9F1239] transition-colors relative overflow-hidden">
-              {/* Graphic Motif: Clock Tower + Leaf */}
               <div className="flex flex-col items-center">
                 <span className="font-serif font-black text-lg tracking-tighter leading-none">BB</span>
                 <span className="text-[8px] font-sans tracking-widest text-rose-200 uppercase mt-0.5">Tea</span>
@@ -133,112 +132,157 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Right Action Icons & Controls */}
           <div className="flex items-center gap-2 sm:gap-3">
             
-
-            {/* Role Switcher & Auth Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2 px-3 py-2 bg-white border border-[#EFE8DC] rounded-lg text-xs font-medium text-slate-800 hover:border-rose-900 shadow-sm transition-colors"
-                title="Switch demo account role"
-              >
-                <div className={`w-2 h-2 rounded-full ${
-                  currentUser?.role === 'admin' ? 'bg-amber-600' : currentUser ? 'bg-emerald-600' : 'bg-slate-400'
-                }`} />
-                <span className="max-w-[110px] sm:max-w-[140px] truncate font-medium">
-                  {currentUser ? (currentUser.role === 'admin' ? 'Admin: Arthur' : 'Sarah (Customer)') : 'Account'}
-                </span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
-              </button>
-
-              {userDropdownOpen && (
-                <div 
-                  className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2"
-                  onMouseLeave={() => setUserDropdownOpen(false)}
+            {/* SIGN IN & SIGN OUT AUTH SECTION */}
+            {!currentUser ? (
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => onOpenAuth('signin')}
+                  className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-rose-50 border border-[#EFE8DC] hover:border-rose-900 rounded-lg text-xs font-semibold text-slate-800 hover:text-rose-900 shadow-sm transition-all cursor-pointer"
+                  title="Sign In"
                 >
-                  <div className="px-4 py-2 border-b border-slate-100">
-                    <p className="text-xs text-slate-500">Current Role Mode</p>
-                    <p className="text-sm font-bold text-slate-900">
-                      {currentUser ? currentUser.name : 'Guest Visitor'}
-                    </p>
-                    {currentUser && (
-                      <p className="text-[11px] text-slate-500 font-mono">{currentUser.email}</p>
-                    )}
+                  <LogIn className="w-3.5 h-3.5 text-rose-800" />
+                  <span>Sign In</span>
+                </button>
+                
+                <button
+                  onClick={() => onOpenAuth('signup')}
+                  className="hidden sm:flex items-center gap-1 px-3 py-2 bg-transparent hover:bg-slate-100 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors"
+                  title="Create Account"
+                >
+                  <UserPlus className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Register</span>
+                </button>
+              </div>
+            ) : (
+              <div className="relative">
+                <button
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-white border border-[#EFE8DC] hover:border-rose-900 rounded-lg text-xs font-medium text-slate-800 shadow-sm transition-colors cursor-pointer"
+                  title="Account menu"
+                  aria-expanded={userDropdownOpen}
+                >
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-bold shadow-xs ${
+                    currentUser.role === 'admin' ? 'bg-amber-700' : 'bg-emerald-700'
+                  }`}>
+                    {currentUser.name.charAt(0)}
                   </div>
-
-                  <div className="py-1">
-                    <div className="px-4 py-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                      Switch Role for Testing
+                  <div className="hidden sm:block text-left">
+                    <div className="text-[11px] font-semibold text-slate-900 leading-none truncate max-w-[100px]">
+                      {currentUser.name.split(' ')[0]}
                     </div>
-                    
-                    <button
-                      onClick={() => {
-                        onSwitchUserRole('customer');
-                        setUserDropdownOpen(false);
-                        onNavigate('customer-dashboard');
-                      }}
-                      className="w-full text-left px-4 py-2 text-xs flex items-center justify-between hover:bg-slate-50 text-slate-800"
-                    >
-                      <div className="flex items-center gap-2">
-                        <UserIcon className="w-4 h-4 text-emerald-700" />
-                        <div>
-                          <div className="font-medium">Sarah Jenkins (Customer)</div>
-                          <div className="text-[10px] text-slate-500">My Orders, addresses, receipts</div>
-                        </div>
-                      </div>
-                      {currentUser?.role === 'customer' && <Check className="w-4 h-4 text-emerald-600" />}
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        onSwitchUserRole('admin');
-                        setUserDropdownOpen(false);
-                        onNavigate('admin-dashboard');
-                      }}
-                      className="w-full text-left px-4 py-2 text-xs flex items-center justify-between hover:bg-slate-50 text-slate-800"
-                    >
-                      <div className="flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4 text-amber-700" />
-                        <div>
-                          <div className="font-medium">Arthur Pendelton (Admin)</div>
-                          <div className="text-[10px] text-slate-500">Manage orders, stock, knowledge</div>
-                        </div>
-                      </div>
-                      {currentUser?.role === 'admin' && <Check className="w-4 h-4 text-amber-600" />}
-                    </button>
+                    <div className={`text-[9px] uppercase tracking-wider font-semibold ${
+                      currentUser.role === 'admin' ? 'text-amber-700' : 'text-emerald-700'
+                    }`}>
+                      {currentUser.role}
+                    </div>
                   </div>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+                </button>
 
-                  <div className="border-t border-slate-100 pt-1 mt-1">
-                    {currentUser?.role === 'customer' && (
+                {userDropdownOpen && (
+                  <div 
+                    className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2"
+                    onMouseLeave={() => setUserDropdownOpen(false)}
+                  >
+                    <div className="px-4 py-2 border-b border-slate-100 bg-slate-50/70">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Signed in as</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                          currentUser.role === 'admin' 
+                            ? 'bg-amber-100 text-amber-900 border border-amber-300' 
+                            : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                        }`}>
+                          {currentUser.role}
+                        </span>
+                      </div>
+                      <p className="text-sm font-bold text-slate-900 mt-1 truncate">
+                        {currentUser.name}
+                      </p>
+                      <p className="text-[11px] text-slate-500 font-mono truncate">{currentUser.email}</p>
+                    </div>
+
+                    {/* Navigation Links for Account */}
+                    <div className="py-1">
                       <button
                         onClick={() => {
                           setUserDropdownOpen(false);
                           onNavigate('customer-dashboard');
                         }}
-                        className="w-full text-left px-4 py-2 text-xs text-rose-900 font-medium hover:bg-rose-50"
+                        className="w-full text-left px-4 py-2 text-xs flex items-center gap-2 hover:bg-slate-50 text-slate-800"
                       >
-                        Go to Customer Dashboard →
+                        <UserIcon className="w-4 h-4 text-emerald-700" />
+                        <div>
+                          <div className="font-semibold">My Account & Orders</div>
+                          <div className="text-[10px] text-slate-500">Order tracking, history, addresses</div>
+                        </div>
                       </button>
-                    )}
-                    {currentUser?.role === 'admin' && (
+
+                      {currentUser.role === 'admin' && (
+                        <button
+                          onClick={() => {
+                            setUserDropdownOpen(false);
+                            onNavigate('admin-dashboard');
+                          }}
+                          className="w-full text-left px-4 py-2 text-xs flex items-center gap-2 hover:bg-slate-50 text-slate-800"
+                        >
+                          <ShieldCheck className="w-4 h-4 text-amber-700" />
+                          <div>
+                            <div className="font-semibold">Admin Workspace</div>
+                            <div className="text-[10px] text-slate-500">Inventory, orders, metrics & AI knowledge</div>
+                          </div>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Switch role quick toggle */}
+                    <div className="border-t border-slate-100 py-1">
+                      <div className="px-4 py-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                        Switch Account Demo
+                      </div>
+                      <button
+                        onClick={() => {
+                          onSwitchUserRole('customer');
+                          setUserDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-1.5 text-xs flex items-center justify-between hover:bg-slate-50 text-slate-700"
+                      >
+                        <span className="text-xs">Sarah Jenkins (Customer)</span>
+                        {currentUser.role === 'customer' && <Check className="w-3.5 h-3.5 text-emerald-600" />}
+                      </button>
+                      <button
+                        onClick={() => {
+                          onSwitchUserRole('admin');
+                          setUserDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-1.5 text-xs flex items-center justify-between hover:bg-slate-50 text-slate-700"
+                      >
+                        <span className="text-xs">Arthur Pendelton (Admin)</span>
+                        {currentUser.role === 'admin' && <Check className="w-3.5 h-3.5 text-amber-600" />}
+                      </button>
+                    </div>
+
+                    {/* Sign Out Action */}
+                    <div className="border-t border-slate-100 pt-1 mt-1">
                       <button
                         onClick={() => {
                           setUserDropdownOpen(false);
-                          onNavigate('admin-dashboard');
+                          onSignOut();
                         }}
-                        className="w-full text-left px-4 py-2 text-xs text-rose-900 font-medium hover:bg-rose-50"
+                        className="w-full text-left px-4 py-2 text-xs text-rose-700 font-semibold hover:bg-rose-50 flex items-center gap-2 transition-colors cursor-pointer"
                       >
-                        Open Admin Workspace →
+                        <LogOut className="w-3.5 h-3.5 text-rose-600" />
+                        <span>Sign Out</span>
                       </button>
-                    )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* Cart Button with Count Badge */}
             <button
               onClick={onOpenCart}
-              className="relative p-2.5 bg-[#881337] hover:bg-[#9F1239] text-white rounded-lg transition-colors shadow-sm flex items-center justify-center min-w-[44px] min-h-[44px]"
+              className="relative p-2.5 bg-[#881337] hover:bg-[#9F1239] text-white rounded-lg transition-colors shadow-sm flex items-center justify-center min-w-[44px] min-h-[44px] cursor-pointer"
               aria-label={`Cart with ${cartCount} items`}
             >
               <ShoppingBag className="w-5 h-5" />
@@ -309,16 +353,74 @@ export const Navbar: React.FC<NavbarProps> = ({
               Contact
             </button>
 
-            <div className="pt-2 border-t border-slate-200">
-              <button
-                onClick={() => {
-                  onNavigate(currentUser?.role === 'admin' ? 'admin-dashboard' : 'customer-dashboard');
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full text-left px-3 py-2 text-sm font-semibold text-rose-900 hover:bg-rose-50 rounded"
-              >
-                {currentUser?.role === 'admin' ? 'Admin Workspace' : 'Customer Account'}
-              </button>
+            <div className="pt-3 border-t border-slate-200 space-y-2">
+              {!currentUser ? (
+                <div className="space-y-1.5">
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenAuth('signin');
+                    }}
+                    className="w-full py-2.5 px-4 bg-[#881337] text-white font-semibold text-xs rounded-lg flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    <span>Sign In to Account</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenAuth('signup');
+                    }}
+                    className="w-full py-2 px-4 bg-white border border-slate-200 text-slate-700 font-medium text-xs rounded-lg flex items-center justify-center gap-2"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    <span>Create New Account</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="px-3 py-2 bg-white rounded-lg border border-slate-200">
+                    <p className="text-[10px] text-slate-400 font-semibold uppercase">Signed in as</p>
+                    <p className="text-sm font-bold text-slate-900">{currentUser.name}</p>
+                    <p className="text-xs text-slate-500 font-mono">{currentUser.email}</p>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      onNavigate('customer-dashboard');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-lg flex items-center gap-2"
+                  >
+                    <UserIcon className="w-4 h-4 text-emerald-700" />
+                    <span>My Customer Dashboard</span>
+                  </button>
+
+                  {currentUser.role === 'admin' && (
+                    <button
+                      onClick={() => {
+                        onNavigate('admin-dashboard');
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-lg flex items-center gap-2"
+                    >
+                      <ShieldCheck className="w-4 h-4 text-amber-700" />
+                      <span>Admin Operations Workspace</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onSignOut();
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-lg flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4 text-rose-600" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}

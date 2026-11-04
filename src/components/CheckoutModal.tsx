@@ -19,6 +19,7 @@ interface CheckoutModalProps {
   currentUser: User | null;
   onOrderSuccess: (order: Order) => void;
   onNavigateToCustomerDashboard: () => void;
+  onOpenAuth?: (mode?: 'signin' | 'signup') => void;
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
@@ -27,14 +28,15 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   items,
   currentUser,
   onOrderSuccess,
-  onNavigateToCustomerDashboard
+  onNavigateToCustomerDashboard,
+  onOpenAuth
 }) => {
   const [step, setStep] = useState<'details' | 'payment' | 'confirmation'>('details');
-  const [customerName, setCustomerName] = useState(currentUser?.name || 'Sarah Jenkins');
-  const [customerEmail, setCustomerEmail] = useState(currentUser?.email || 'sarah.j@example.co.uk');
-  const [street, setStreet] = useState(currentUser?.addresses[0]?.street || '14 Kensington Church Street');
-  const [city, setCity] = useState(currentUser?.addresses[0]?.city || 'London');
-  const [postcode, setPostcode] = useState(currentUser?.addresses[0]?.postcode || 'W8 4EP');
+  const [customerName, setCustomerName] = useState(currentUser?.name || '');
+  const [customerEmail, setCustomerEmail] = useState(currentUser?.email || '');
+  const [street, setStreet] = useState(currentUser?.addresses[0]?.street || '');
+  const [city, setCity] = useState(currentUser?.addresses[0]?.city || '');
+  const [postcode, setPostcode] = useState(currentUser?.addresses[0]?.postcode || '');
   const [country, setCountry] = useState('United Kingdom');
   const [shippingMethod, setShippingMethod] = useState<'standard' | 'express'>('standard');
   const [paymentProvider, setPaymentProvider] = useState<'paystack' | 'flutterwave' | 'card'>('paystack');
@@ -43,6 +45,19 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [cardCvc, setCardCvc] = useState('882');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+
+  // Sync state if currentUser changes
+  React.useEffect(() => {
+    if (currentUser) {
+      if (currentUser.name) setCustomerName(currentUser.name);
+      if (currentUser.email) setCustomerEmail(currentUser.email);
+      if (currentUser.addresses && currentUser.addresses.length > 0) {
+        setStreet(currentUser.addresses[0].street);
+        setCity(currentUser.addresses[0].city);
+        setPostcode(currentUser.addresses[0].postcode);
+      }
+    }
+  }, [currentUser]);
 
   if (!isOpen) return null;
 
@@ -158,6 +173,21 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           {/* STEP 1: SHIPPING & CONTACT */}
           {step === 'details' && (
             <form onSubmit={handleProceedToPayment} className="space-y-4 text-xs">
+              {!currentUser && onOpenAuth && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between text-xs text-amber-900 mb-2">
+                  <div>
+                    <span className="font-semibold">Have a Big Ben account?</span>
+                    <span className="text-amber-700 ml-1">Sign in for tracked orders & address pre-fill.</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onOpenAuth('signin')}
+                    className="text-xs font-bold text-rose-900 hover:underline px-3 py-1 bg-white border border-amber-300 rounded-lg cursor-pointer transition-colors shadow-2xs"
+                  >
+                    Sign In
+                  </button>
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">Full Name</label>

@@ -22,6 +22,7 @@ import { CustomerDashboard } from './components/CustomerDashboard';
 import { AdminWorkspace } from './components/AdminWorkspace';
 import { AIChatbot } from './components/AIChatbot';
 import { Footer } from './components/Footer';
+import { AuthModal } from './components/AuthModal';
 import { Search, Filter, ShoppingBag, CheckCircle2, ArrowRight } from 'lucide-react';
 
 export default function App() {
@@ -48,8 +49,16 @@ export default function App() {
     }
   ]);
 
-  // Auth / Current Role State
-  const [currentUser, setCurrentUser] = useState<User | null>(demoCustomer);
+  // Auth / Current User State (Persisted in localStorage)
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    try {
+      const saved = localStorage.getItem('bbg_auth_user');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return demoCustomer;
+  });
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin');
 
   // Cart & Commerce State
   const [cartItems, setCartItems] = useState<OrderItem[]>([
@@ -303,26 +312,60 @@ export default function App() {
     showToast('Knowledge item removed');
   };
 
-  // Role Switching Handler
+  // Auth Handlers (Sign In, Sign Up, Sign Out, Switch)
+  const handleOpenAuth = (mode: 'signin' | 'signup' = 'signin') => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
+  };
+
+  const handleLoginSuccess = (user: User) => {
+    setCurrentUser(user);
+    try {
+      localStorage.setItem('bbg_auth_user', JSON.stringify(user));
+    } catch {}
+    showToast(`Welcome back, ${user.name}!`);
+    if (user.role === 'admin') {
+      setActiveView('admin-dashboard');
+    }
+  };
+
+  const handleSignOut = () => {
+    const prevName = currentUser?.name;
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('bbg_auth_user');
+    } catch {}
+    fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    showToast(prevName ? `Signed out. Goodbye, ${prevName.split(' ')[0]}!` : 'Signed out successfully.');
+    if (activeView === 'admin-dashboard' || activeView === 'customer-dashboard') {
+      setActiveView('home');
+    }
+  };
+
   const handleSwitchUserRole = (role: 'customer' | 'admin' | 'guest') => {
     if (role === 'customer') {
       setCurrentUser(demoCustomer);
+      try { localStorage.setItem('bbg_auth_user', JSON.stringify(demoCustomer)); } catch {}
       showToast('Switched to Customer account: Sarah Jenkins');
     } else if (role === 'admin') {
       setCurrentUser(demoAdmin);
+      try { localStorage.setItem('bbg_auth_user', JSON.stringify(demoAdmin)); } catch {}
       showToast('Switched to Admin account: Arthur Pendelton');
     } else {
-      setCurrentUser(null);
-      showToast('Viewing as Guest Visitor');
+      handleSignOut();
     }
   };
 
   const handleUpdateCustomerAddresses = (addresses: Address[]) => {
     if (currentUser) {
-      setCurrentUser({
+      const updatedUser = {
         ...currentUser,
         addresses
-      });
+      };
+      setCurrentUser(updatedUser);
+      try {
+        localStorage.setItem('bbg_auth_user', JSON.stringify(updatedUser));
+      } catch {}
       showToast('Delivery addresses updated');
     }
   };
@@ -349,7 +392,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Main Top Navigation */}
+      {/* Main Top Navigation with Sign In & Sign Out */}
       <Navbar
         currentUser={currentUser}
         onSwitchUserRole={handleSwitchUserRole}
@@ -360,6 +403,8 @@ export default function App() {
           setActiveView(view);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
+        onOpenAuth={handleOpenAuth}
+        onSignOut={handleSignOut}
       />
 
           {/* VIEW: HOME */}
@@ -578,10 +623,11 @@ export default function App() {
           {activeView === 'customer-dashboard' && (
             <main>
               <CustomerDashboard
-                user={currentUser || demoCustomer}
+                user={currentUser}
                 orders={orders}
                 onNavigateShop={() => setActiveView('shop')}
                 onUpdateAddress={handleUpdateCustomerAddresses}
+                onOpenAuth={handleOpenAuth}
               />
             </main>
           )}
@@ -604,6 +650,9 @@ export default function App() {
                 onAddKnowledgeItem={handleAddKnowledgeItem}
                 onUpdateKnowledgeItem={handleUpdateKnowledgeItem}
                 onDeleteKnowledgeItem={handleDeleteKnowledgeItem}
+                currentUser={currentUser}
+                onOpenAuth={handleOpenAuth}
+                onReturnHome={() => setActiveView('home')}
               />
             </main>
           )}
@@ -637,6 +686,7 @@ export default function App() {
               setActiveView('customer-dashboard');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
+            onOpenAuth={handleOpenAuth}
           />
 
           <ProductDetailModal
@@ -649,6 +699,16 @@ export default function App() {
           <AIChatbot
             currentUser={currentUser}
             onNavigate={view => setActiveView(view)}
+          />
+
+          {/* Sign In & Sign Up Authentication Modal */}
+          <AuthModal
+            isOpen={isAuthModalOpen}
+            onClose={() => setIsAuthModalOpen(false)}
+            initialMode={authModalMode}
+            onLoginSuccess={handleLoginSuccess}
+            demoCustomerUser={demoCustomer}
+            demoAdminUser={demoAdmin}
           />
 
     </div>

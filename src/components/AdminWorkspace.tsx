@@ -26,7 +26,7 @@ import {
   Send,
   Sparkles
 } from 'lucide-react';
-import { Product, Order, KnowledgeItem, ContactEnquiry, AuditLog, UnresolvedQuestion } from '../types';
+import { Product, Order, KnowledgeItem, ContactEnquiry, AuditLog, UnresolvedQuestion, User } from '../types';
 
 interface AdminWorkspaceProps {
   products: Product[];
@@ -44,6 +44,9 @@ interface AdminWorkspaceProps {
   onUpdateKnowledgeItem: (id: string, updates: Partial<KnowledgeItem>) => void;
   onDeleteKnowledgeItem: (id: string) => void;
   onRefreshData?: () => void;
+  currentUser?: User | null;
+  onOpenAuth?: (mode?: 'signin' | 'signup') => void;
+  onReturnHome?: () => void;
 }
 
 export const AdminWorkspace: React.FC<AdminWorkspaceProps> = ({
@@ -61,8 +64,43 @@ export const AdminWorkspace: React.FC<AdminWorkspaceProps> = ({
   onAddKnowledgeItem,
   onUpdateKnowledgeItem,
   onDeleteKnowledgeItem,
+  currentUser,
+  onOpenAuth,
+  onReturnHome
 }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'products' | 'knowledge' | 'enquiries' | 'audit' | 'settings'>('overview');
+
+  if (currentUser?.role !== 'admin') {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-16 text-center">
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center mb-5 shadow-sm">
+          <ShieldAlert className="w-8 h-8 text-amber-700" />
+        </div>
+        <h2 className="font-serif text-2xl font-bold text-slate-900 mb-2">
+          Administrator Access Required
+        </h2>
+        <p className="text-slate-600 text-sm mb-6 max-w-md mx-auto">
+          The Big Ben Global operations workspace requires an authenticated administrator session to inspect inventory, manage orders, and train the customer AI.
+        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button
+            onClick={() => onOpenAuth?.('signin')}
+            className="w-full sm:w-auto px-6 py-2.5 bg-[#881337] hover:bg-[#9F1239] text-white rounded-xl text-xs font-semibold shadow-md transition-all cursor-pointer"
+          >
+            Sign In with Admin Account
+          </button>
+          {onReturnHome && (
+            <button
+              onClick={onReturnHome}
+              className="w-full sm:w-auto px-6 py-2.5 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-semibold shadow-sm transition-all cursor-pointer"
+            >
+              Return to Tea Catalogue
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
   
   // Search & Filter States
   const [orderSearch, setOrderSearch] = useState('');

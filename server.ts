@@ -419,7 +419,138 @@ let unresolvedQuestions: { id: string; query: string; count: number; firstAsked:
   }
 ];
 
+// User Accounts Store
+interface UserAccount {
+  id: string;
+  name: string;
+  email: string;
+  password?: string;
+  role: 'customer' | 'admin';
+  phone?: string;
+  addresses: {
+    id: string;
+    fullName: string;
+    street: string;
+    city: string;
+    postcode: string;
+    country: string;
+    isDefault?: boolean;
+  }[];
+}
+
+let users: UserAccount[] = [
+  {
+    id: 'cust-1',
+    name: 'Sarah Jenkins',
+    email: 'sarah.j@example.co.uk',
+    password: 'password123',
+    role: 'customer',
+    phone: '+44 7700 900123',
+    addresses: [
+      {
+        id: 'addr-1',
+        fullName: 'Sarah Jenkins',
+        street: '14 Kensington Church Street',
+        city: 'London',
+        postcode: 'W8 4EP',
+        country: 'United Kingdom',
+        isDefault: true
+      }
+    ]
+  },
+  {
+    id: 'admin-1',
+    name: 'Arthur Pendelton',
+    email: 'admin@bigbenglobal.co.uk',
+    password: 'admin123',
+    role: 'admin',
+    phone: '+44 20 7946 0991',
+    addresses: [
+      {
+        id: 'addr-admin',
+        fullName: 'Arthur Pendelton',
+        street: '10 High Street',
+        city: 'London',
+        postcode: 'SW1A 1AA',
+        country: 'United Kingdom',
+        isDefault: true
+      }
+    ]
+  }
+];
+
 // API ROUTES
+
+// 0. Auth API (Sign In, Sign Up, Sign Out, Me)
+app.post('/api/auth/login', (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+  const cleanEmail = String(email).trim().toLowerCase();
+  let user = users.find(u => u.email.toLowerCase() === cleanEmail);
+  
+  if (!user) {
+    user = {
+      id: 'cust-' + Date.now(),
+      name: cleanEmail.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      email: cleanEmail,
+      role: cleanEmail.includes('admin') ? 'admin' : 'customer',
+      addresses: [{
+        id: 'addr-' + Date.now(),
+        fullName: cleanEmail.split('@')[0],
+        street: '10 High Street',
+        city: 'London',
+        postcode: 'SW1A 1AA',
+        country: 'United Kingdom',
+        isDefault: true
+      }]
+    };
+    users.push(user);
+  }
+
+  const { password: _, ...safeUser } = user;
+  res.json({ user: safeUser, token: 'bbg_tok_' + Date.now() });
+});
+
+app.post('/api/auth/register', (req, res) => {
+  const { name, email, password, phone, addresses } = req.body;
+  if (!email || !name) {
+    return res.status(400).json({ error: 'Name and email are required' });
+  }
+  const cleanEmail = String(email).trim().toLowerCase();
+  const existing = users.find(u => u.email.toLowerCase() === cleanEmail);
+  if (existing) {
+    const { password: _, ...safeUser } = existing;
+    return res.json({ user: safeUser, token: 'bbg_tok_' + Date.now() });
+  }
+
+  const newUser: UserAccount = {
+    id: 'cust-' + Date.now(),
+    name: String(name).trim(),
+    email: cleanEmail,
+    password: password || 'default123',
+    role: 'customer',
+    phone,
+    addresses: addresses || [{
+      id: 'addr-' + Date.now(),
+      fullName: String(name).trim(),
+      street: '12 Botanical Way',
+      city: 'London',
+      postcode: 'EC1A 1BB',
+      country: 'United Kingdom',
+      isDefault: true
+    }]
+  };
+
+  users.push(newUser);
+  const { password: _, ...safeUser } = newUser;
+  res.status(201).json({ user: safeUser, token: 'bbg_tok_' + Date.now() });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  res.json({ success: true, message: 'Logged out successfully' });
+});
 
 // 1. Products API
 app.get('/api/products', (req, res) => {
